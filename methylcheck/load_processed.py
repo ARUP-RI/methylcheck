@@ -143,6 +143,7 @@ Use cases and format:
         probe_filepath = pkg_resources.resource_filename(pkg_namespace, PROBE_FILE)
         sketchy_probes = np.load(probe_filepath)
 
+    sample_list = []  # Initialize sample_list for collecting samples
     #2a: return some simpler data formats, before trying betas/m_values and processed_files.
     if format == 'control':
         # filepath can be a file or a folder containing "control_probes" as pkl or parquet.
@@ -467,6 +468,7 @@ Use cases and format:
     parts = []
     probes = pd.DataFrame().index
     samples = pd.DataFrame().index
+    sample_list = []
     read_func = pd.read_parquet if file_format == 'parquet' else pd.read_pickle
     for file in tqdm(total_parts, total=len(total_parts), desc="Files", disable=silent):
         if verbose:
@@ -495,9 +497,9 @@ Use cases and format:
         if processed_files:
             # p-value filtering already applied in earlier step when CSVs were read and collated into dataframe
             if format in ('beta_value','beta_csv'):
-                samples = samples.append(df['beta_value'])
+                sample_list.append(df['beta_value'])
             if format == 'm_value':
-                samples = samples.append(df['m_value'])
+                sample_list.append(df['m_value'])
         else:
             # apply p-value filtering ---- requires locating a second .pkl file
             if no_poobah == False:
@@ -520,9 +522,16 @@ Use cases and format:
                     if verbose:
                         LOGGER.info("P-value filtering for multi-volume batches is not implemented. Use the --poobah option in methylprep.run_pipeline() instead.")
 
-            samples = samples.append(df.columns)
+            sample_list.append(df.columns)
         npy = df.to_numpy()
         parts.append(npy)
+
+    # Concatenate all samples at once instead of appending
+    if sample_list:
+        samples = pd.concat(sample_list, ignore_index=True)
+    else:
+        samples = pd.DataFrame().index
+
     npy = np.concatenate(parts, axis=1) # 8x faster with npy vs pandas
     # axis=1 -- assume that appending to rows, not columns. Each part has same columns (probes)
     try:
@@ -588,7 +597,7 @@ Arguments:
             frames = [pd.read_pickle(pkl) for pkl in meta_files if pkl.suffix == '.pkl']
         except pickle.UnpicklingError:
             raise pickle.UnpicklingError("Cannot read your .pkl file")
-        parquets = [pd.read_pickle(par) for par in meta_files if par.suffix == '.parquet']
+        parquets = [pd.read_parquet(par) for par in meta_files if par.suffix == '.parquet']
         if frames == [] and len(parquets) > 0:
             frames = parquets
         meta_tags = frames[0].columns # assumes all have same columns
@@ -607,7 +616,7 @@ Arguments:
                 meta = meta.loc[:, ~meta.columns.duplicated()]
             partial_meta = True
         else:
-            meta = pd.concat(frames, axis=0, sort=False)
+            meta = pd.concat(frames, axis=0, ignore_index=True)
             # need to check whether there are multiple samples for each sample name. and warn.
 
     if len(meta_files) == 1 and Path(meta_files[0]).suffix == '.pkl':
