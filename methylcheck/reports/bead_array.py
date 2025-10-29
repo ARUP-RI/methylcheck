@@ -875,7 +875,7 @@ target removal
             worksheet.set_column(this_box, col_width)
             col += 1
         worksheet.set_column("A:A", 24) # samples
-        writer.save()
+        writer.close()
 
 
 def controls_report(*args, **kwargs):
