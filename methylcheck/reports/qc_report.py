@@ -637,7 +637,7 @@ Suggested for customer to do on their own
                 break
             self.page_of_paragraphs(para_list, self.pdf, line_height='single', fontsize=self.appendix_fontsize)
             last_row += rows_per_page
-        self.errors.close()
+        # self.errors.close()
 
 
     def exec_summary(self):
