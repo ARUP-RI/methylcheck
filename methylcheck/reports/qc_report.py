@@ -606,6 +606,11 @@ Suggested for customer to do on their own
 
         # and finally, appendix of log messages
         appendix_msgs = self.errors.getvalue()
+
+        # Close the StringIO buffer BEFORE processing the messages
+        # This prevents logging errors when processing the appendix
+        self.errors.close()
+
         appendix_msgs = appendix_msgs.split('^^^')
         # drop the trailing \n at end of each message, if present, but preserve within-line \n line breaks
         appendix_msgs = [(msg[:-2] if msg[-2:] == '\n' else msg) for msg in appendix_msgs]
