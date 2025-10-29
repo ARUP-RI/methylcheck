@@ -525,13 +525,13 @@ Use cases and format:
             sample_list.append(df.columns)
         npy = df.to_numpy()
         parts.append(npy)
-
+    
     # Concatenate all samples at once instead of appending
     if sample_list:
         samples = pd.concat(sample_list, ignore_index=True)
     else:
         samples = pd.DataFrame().index
-
+    
     npy = np.concatenate(parts, axis=1) # 8x faster with npy vs pandas
     # axis=1 -- assume that appending to rows, not columns. Each part has same columns (probes)
     try:

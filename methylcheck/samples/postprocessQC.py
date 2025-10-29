@@ -768,7 +768,7 @@ def _add_poobah(poobah, extended=True):
     return percent_failures_hues, legend_order
 
 
-def mean_beta_compare(df1, df2, save=False, verbose=False, silent=False):
+def mean_beta_compare(df1, df2, save=False, verbose=False, silent=False, return_fig=False):
     """Use this function to compare two dataframes, pre-vs-post filtering and removal of outliers.
 args:
     the first argument (df1) is the "pre" dataframe of samples
@@ -811,8 +811,12 @@ kwargs:
         plt.savefig('mean_beta_compare.png')
     if not silent:
         plt.show()
+    elif return_fig:
+        return fig
     else:
         plt.close('all')
+
+
 
 
 def combine_mds(*args, **kwargs):
