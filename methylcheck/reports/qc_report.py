@@ -606,11 +606,6 @@ Suggested for customer to do on their own
 
         # and finally, appendix of log messages
         appendix_msgs = self.errors.getvalue()
-
-        # Close the StringIO buffer BEFORE processing the messages
-        # This prevents logging errors when processing the appendix
-        self.errors.close()
-
         appendix_msgs = appendix_msgs.split('^^^')
         # drop the trailing \n at end of each message, if present, but preserve within-line \n line breaks
         appendix_msgs = [(msg[:-2] if msg[-2:] == '\n' else msg) for msg in appendix_msgs]
@@ -637,7 +632,8 @@ Suggested for customer to do on their own
                 break
             self.page_of_paragraphs(para_list, self.pdf, line_height='single', fontsize=self.appendix_fontsize)
             last_row += rows_per_page
-        # self.errors.close()
+
+        # self.errors.close()  # was causing logging errors
 
 
     def exec_summary(self):
