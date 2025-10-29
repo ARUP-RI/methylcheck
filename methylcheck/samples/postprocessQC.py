@@ -811,7 +811,7 @@ kwargs:
         plt.savefig('mean_beta_compare.png')
     if not silent:
         plt.show()
-    elif return_fig:
+    if return_fig:
         return fig
     else:
         plt.close('all')
