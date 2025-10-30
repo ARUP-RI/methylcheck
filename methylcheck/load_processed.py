@@ -522,7 +522,8 @@ Use cases and format:
                     if verbose:
                         LOGGER.info("P-value filtering for multi-volume batches is not implemented. Use the --poobah option in methylprep.run_pipeline() instead.")
 
-            sample_list.append(df.columns)
+            # sample_list.append(df.columns) # BUG: this appends the Index object, not the list of sample names
+            sample_list.append(pd.Series(df.columns))
         npy = df.to_numpy()
         parts.append(npy)
     
